@@ -1,0 +1,668 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>G6 Imobiliário</title>
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:wght@600;700&family=Outfit:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #080e1a;
+  --bg2: #0c1424;
+  --surface: #0f1a2e;
+  --surface2: #152035;
+  --surface3: #1c2d47;
+  --border: rgba(255,255,255,.07);
+  --border2: rgba(255,255,255,.12);
+  --text: #e8edf5;
+  --text2: #8fa3bf;
+  --text3: #4d6480;
+  --gold: #c9a84c;
+  --gold2: #e8c97a;
+  --sky: #4fb3f6;
+  --sky2: #7dceff;
+  --green: #3dd68c;
+  --yellow: #f5c842;
+  --red: #f06464;
+  --orange: #f09055;
+  --purple: #9d7ef7;
+  --radius: 14px;
+  --radius-sm: 8px;
+  --shadow: 0 4px 24px rgba(0,0,0,.4);
+  --shadow-lg: 0 12px 48px rgba(0,0,0,.6);
+  --transition: .2s cubic-bezier(.4,0,.2,1);
+}
+body { font-family:'Outfit',sans-serif; background:var(--bg); color:var(--text); min-height:100vh; font-size:14px; line-height:1.5; overflow-x:hidden; }
+body::before { content:''; position:fixed; inset:0; background-image:url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='.85' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='.03'/%3E%3C/svg%3E"); pointer-events:none; z-index:0; opacity:.6; }
+body::after { content:''; position:fixed; top:-200px; left:-100px; width:700px; height:700px; background:radial-gradient(circle, rgba(201,168,76,.04) 0%, transparent 70%); pointer-events:none; z-index:0; }
+.app-wrapper { position:relative; z-index:1; max-width:1440px; margin:0 auto; }
+
+/* HEADER */
+header { display:flex; align-items:center; gap:20px; padding:28px 36px 24px; margin-bottom:20px; flex-wrap:wrap; border-bottom:1px solid var(--border); }
+.logo-wrap { display:flex; align-items:center; gap:14px; }
+.logo-text { display:flex; flex-direction:column; gap:2px; }
+.logo-title { font-family:'Playfair Display',serif; font-size:22px; font-weight:700; color:var(--text); letter-spacing:-.3px; line-height:1; }
+.logo-title span { color:var(--gold); }
+.logo-subtitle { font-size:10px; font-weight:600; color:var(--text3); letter-spacing:2.5px; text-transform:uppercase; }
+.header-divider { width:1px; height:32px; background:var(--border2); flex-shrink:0; }
+#status-bar { display:none; padding:5px 14px; border-radius:20px; font-size:11px; font-weight:600; letter-spacing:.3px; }
+.header-actions { margin-left:auto; display:flex; align-items:center; gap:10px; position:relative; }
+.btn-icon-header { width:40px; height:40px; border-radius:10px; border:1px solid var(--border2); background:var(--surface); color:var(--text2); cursor:pointer; font-size:16px; display:grid; place-items:center; transition:var(--transition); }
+.btn-icon-header:hover { border-color:var(--gold); color:var(--gold); background:rgba(201,168,76,.08); }
+#busca-box { display:none; position:absolute; right:0; top:52px; background:var(--surface2); border:1px solid var(--border2); border-radius:var(--radius); padding:12px; width:300px; box-shadow:var(--shadow-lg); z-index:100; }
+#busca-input { width:100%; padding:10px 14px; border-radius:var(--radius-sm); border:1px solid var(--border2); background:var(--bg); color:var(--text); font-family:inherit; font-size:13px; outline:none; transition:border-color var(--transition); }
+#busca-input:focus { border-color:var(--gold); }
+#busca-resultados { margin-top:8px; max-height:220px; overflow-y:auto; }
+
+/* TABS */
+.tabs { display:flex; gap:4px; padding:0 36px; margin-bottom:20px; }
+.tab-btn { padding:9px 20px; border-radius:20px; border:1px solid transparent; background:transparent; color:var(--text3); font-family:inherit; font-size:12px; font-weight:600; cursor:pointer; transition:var(--transition); letter-spacing:.3px; }
+.tab-btn:hover { color:var(--text2); background:var(--surface); border-color:var(--border2); }
+.tab-btn.active { background:var(--surface2); border-color:var(--border2); color:var(--text); }
+.tab-btn[data-tab="geral"].active { border-color:rgba(201,168,76,.4); color:var(--gold); background:rgba(201,168,76,.08); }
+.tab-btn[data-tab="caixa"].active { border-color:rgba(79,179,246,.4); color:var(--sky); background:rgba(79,179,246,.08); }
+.tab-btn[data-tab="finalizados"].active { border-color:rgba(61,214,140,.4); color:var(--green); background:rgba(61,214,140,.08); }
+.tab-panel { display:none; }
+.tab-panel.active { display:block; animation:fadeIn .2s ease; }
+@keyframes fadeIn { from{opacity:0;transform:translateY(4px)} to{opacity:1;transform:none} }
+
+/* TOOLBAR */
+.toolbar { display:flex; align-items:center; gap:6px; padding:0 36px; margin-bottom:20px; flex-wrap:wrap; }
+.toolbar-sep { width:1px; height:20px; background:var(--border2); margin:0 2px; flex-shrink:0; }
+.filter-btn { padding:6px 14px; border-radius:20px; border:1px solid var(--border); background:transparent; color:var(--text3); font-family:inherit; font-size:11px; font-weight:600; cursor:pointer; transition:var(--transition); letter-spacing:.2px; }
+.filter-btn:hover { color:var(--text2); border-color:var(--border2); }
+.filter-btn.active-aprovado { background:rgba(61,214,140,.1); border-color:rgba(61,214,140,.4); color:var(--green); }
+.filter-btn.active-condicionado { background:rgba(245,200,66,.1); border-color:rgba(245,200,66,.4); color:var(--yellow); }
+.filter-btn.active-reprovado { background:rgba(240,100,100,.1); border-color:rgba(240,100,100,.4); color:var(--red); }
+.btn-toolbar { padding:6px 14px; border-radius:20px; border:1px solid var(--border); background:transparent; color:var(--text3); font-family:inherit; font-size:11px; font-weight:600; cursor:pointer; transition:var(--transition); display:inline-flex; align-items:center; gap:5px; }
+.btn-toolbar:hover { color:var(--text); border-color:var(--border2); }
+.btn-toolbar.active { background:rgba(79,179,246,.1); border-color:rgba(79,179,246,.4); color:var(--sky); }
+#tag-filter-bar { display:none; flex-wrap:wrap; gap:5px; align-items:center; padding:0 36px; margin-bottom:16px; }
+.toolbar-select { min-width:170px; height:34px; padding:0 34px 0 12px; border-radius:20px; border:1px solid var(--border); background:var(--surface); color:var(--text2); font-family:inherit; font-size:11px; font-weight:600; outline:none; transition:var(--transition); appearance:none; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%238fa3bf' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 12px center; }
+.toolbar-select:focus, .toolbar-select:hover { border-color:var(--border2); color:var(--text); }
+.card-value.bank-leader { font-size:18px; line-height:1.15; font-family:'Outfit',sans-serif; font-weight:700; }
+.card-subvalue { font-size:11px; color:var(--text3); margin-top:3px; }
+
+/* CONTAINER */
+.container { padding:0 36px 48px; }
+body.compact .container { padding:0 28px 32px; }
+
+/* CARDS */
+.cards { display:grid; grid-template-columns:repeat(auto-fit,minmax(200px,1fr)); gap:14px; margin-bottom:28px; }
+.card { background:var(--surface); border:1px solid var(--border); padding:22px 24px; border-radius:var(--radius); display:flex; align-items:center; gap:18px; transition:var(--transition); position:relative; overflow:hidden; }
+.card::before { content:''; position:absolute; top:0; left:0; right:0; height:1px; background:linear-gradient(90deg,transparent,rgba(255,255,255,.08),transparent); }
+.card:hover { border-color:var(--border2); transform:translateY(-1px); box-shadow:var(--shadow); }
+body.compact .card { padding:16px 18px; }
+.card-icon { width:44px; height:44px; border-radius:12px; display:grid; place-items:center; font-size:18px; flex-shrink:0; }
+.card-icon.gold { background:rgba(201,168,76,.12); border:1px solid rgba(201,168,76,.2); }
+.card-icon.green { background:rgba(61,214,140,.1); border:1px solid rgba(61,214,140,.2); }
+.card-icon.blue { background:rgba(79,179,246,.1); border:1px solid rgba(79,179,246,.2); }
+.card-icon.purple { background:rgba(157,126,247,.1); border:1px solid rgba(157,126,247,.2); }
+.card-info { display:flex; flex-direction:column; gap:3px; }
+.card-label { font-size:10px; color:var(--text3); font-weight:600; text-transform:uppercase; letter-spacing:1px; }
+.card-value { font-size:28px; font-weight:700; line-height:1; font-family:'Playfair Display',serif; }
+body.compact .card-value { font-size:22px; }
+.card-value.gold { color:var(--gold); }
+.card-value.green { color:var(--green); }
+.card-value.blue { color:var(--sky); }
+.card-value.purple { color:var(--purple); }
+
+/* PIPELINE */
+.pipeline { display:grid; grid-template-columns:repeat(9,1fr); gap:8px; margin-bottom:28px; }
+.step { background:var(--surface); border:1px solid var(--border); padding:12px 8px; border-radius:10px; text-align:center; cursor:pointer; transition:var(--transition); font-size:11px; font-weight:500; color:var(--text3); user-select:none; }
+body.compact .step { padding:8px 6px; font-size:10px; }
+.step:hover { border-color:rgba(201,168,76,.3); color:var(--text2); background:rgba(201,168,76,.04); transform:translateY(-1px); }
+.step.active { border-color:rgba(201,168,76,.5); background:rgba(201,168,76,.08); color:var(--gold); }
+.step strong { display:block; font-size:22px; font-weight:700; font-family:'Playfair Display',serif; color:var(--text); margin-bottom:3px; line-height:1; }
+body.compact .step strong { font-size:17px; }
+.step.active strong { color:var(--gold); }
+.step.clear { background:var(--bg2); color:var(--text3); font-size:10px; }
+.step.clear:hover { color:var(--text2); }
+
+/* BADGES */
+.dias-badge { display:inline-block; margin-top:4px; padding:2px 8px; border-radius:20px; font-size:10px; font-weight:600; }
+.dias-verde { background:rgba(61,214,140,.12); color:var(--green); }
+.dias-yellow { background:rgba(245,200,66,.12); color:var(--yellow); }
+.dias-laranja { background:rgba(240,144,85,.12); color:var(--orange); }
+.dias-red { background:rgba(240,100,100,.12); color:var(--red); }
+.prazo-badge { display:inline-flex; align-items:center; gap:4px; padding:2px 8px; border-radius:20px; font-size:10px; font-weight:600; }
+.prazo-ok { background:rgba(61,214,140,.1); color:var(--green); }
+.prazo-proximo { background:rgba(245,200,66,.1); color:var(--yellow); }
+.prazo-urgente { background:rgba(240,144,85,.12); color:var(--orange); animation:pulse 1.4s infinite; }
+.prazo-vencido { background:rgba(240,100,100,.12); color:var(--red); animation:pulse 1s infinite; }
+@keyframes pulse { 0%,100%{opacity:1} 50%{opacity:.5} }
+
+/* FORM */
+.form-box { background:var(--surface); border:1px solid var(--border); padding:24px 28px; border-radius:var(--radius); margin-bottom:20px; position:relative; overflow:hidden; }
+.form-box::before { content:''; position:absolute; top:0; left:0; right:0; height:1px; background:linear-gradient(90deg,transparent,rgba(201,168,76,.3),transparent); }
+.form-header { display:flex; align-items:center; gap:10px; margin-bottom:18px; }
+.form-header-dot { width:6px; height:6px; border-radius:50%; background:var(--gold); }
+.form-header h3 { font-size:11px; font-weight:700; color:var(--text3); text-transform:uppercase; letter-spacing:1.5px; }
+.form-grid { display:grid; grid-template-columns:2fr 1.5fr 1fr 1fr 1fr auto; gap:12px; align-items:end; }
+.form-grid label { display:flex; flex-direction:column; gap:6px; font-size:10px; font-weight:600; color:var(--text3); text-transform:uppercase; letter-spacing:.8px; }
+.form-grid input, .form-grid select { padding:10px 14px; border-radius:var(--radius-sm); border:1px solid var(--border2); background:var(--bg); color:var(--text); font-family:inherit; font-size:13px; outline:none; transition:var(--transition); width:100%; height:40px; }
+.form-grid input:focus, .form-grid select:focus { border-color:rgba(201,168,76,.5); background:rgba(201,168,76,.03); box-shadow:0 0 0 3px rgba(201,168,76,.06); }
+.form-grid select { appearance:none; background-image:url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 24 24' fill='none' stroke='%234d6480' stroke-width='2'%3E%3Cpath d='M6 9l6 6 6-6'/%3E%3C/svg%3E"); background-repeat:no-repeat; background-position:right 12px center; padding-right:32px; }
+.btn-add { padding:0 22px; height:40px; background:linear-gradient(135deg,var(--gold),#a8862e); color:#0a0d12; border:none; border-radius:var(--radius-sm); font-family:inherit; font-size:12px; font-weight:700; cursor:pointer; white-space:nowrap; transition:var(--transition); letter-spacing:.4px; text-transform:uppercase; }
+.btn-add:hover { opacity:.9; transform:translateY(-1px); box-shadow:0 4px 16px rgba(201,168,76,.3); }
+.btn-add:disabled { opacity:.6; cursor:not-allowed; transform:none; box-shadow:none; }
+.table-input.saved, .cred-input.saved { border-color:rgba(61,214,140,.45); background:rgba(61,214,140,.06); }
+
+/* TABLE */
+.table-box { background:var(--surface); border:1px solid var(--border); border-radius:var(--radius); overflow:hidden; }
+table { width:100%; border-collapse:collapse; text-align:center; font-size:13px; }
+body.compact table { font-size:12px; }
+thead { background:var(--bg2); }
+th { padding:13px 12px; color:var(--text3); font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:1px; border-bottom:1px solid var(--border); white-space:nowrap; }
+body.compact th { padding:9px 8px; }
+th.sortable { cursor:pointer; user-select:none; }
+th.sortable:hover { color:var(--text2); }
+th .sort-arrow { margin-left:4px; opacity:.3; font-size:9px; }
+th.sort-asc .sort-arrow, th.sort-desc .sort-arrow { opacity:1; color:var(--gold); }
+tbody tr { border-bottom:1px solid var(--border); transition:background var(--transition); }
+tbody tr:last-child { border-bottom:none; }
+tbody tr:hover { background:rgba(255,255,255,.015); }
+tbody tr.row-aprovado { box-shadow:inset 3px 0 0 var(--green); }
+tbody tr.row-condicionado { box-shadow:inset 3px 0 0 var(--yellow); }
+tbody tr.row-reprovado { box-shadow:inset 3px 0 0 var(--red); }
+td { padding:11px 12px; vertical-align:middle; }
+body.compact td { padding:7px 8px; }
+.table-input { width:100%; background:transparent; color:var(--text); border:1px solid transparent; border-radius:var(--radius-sm); padding:6px 10px; text-align:center; font-family:inherit; font-size:13px; outline:none; transition:var(--transition); }
+.table-input:focus { border-color:var(--border2); background:var(--bg); }
+.select-table { background:transparent; color:var(--text); border:1px solid transparent; border-radius:var(--radius-sm); padding:5px 10px; font-family:inherit; font-size:12px; outline:none; cursor:pointer; transition:var(--transition); font-weight:600; }
+.select-table:hover, .select-table:focus { border-color:var(--border2); background:var(--bg); }
+.retorno-select { width:140px; }
+.retorno-select.aprovado { color:var(--green); }
+.retorno-select.condicionado { color:var(--yellow); }
+.retorno-select.reprovado { color:var(--red); }
+
+/* BADGE ETAPA */
+.badge-etapa { display:inline-block; padding:3px 10px; border-radius:20px; font-size:10px; font-weight:700; white-space:nowrap; letter-spacing:.3px; }
+.etapa-0 { background:rgba(77,100,128,.15); color:#6b8196; border:1px solid rgba(77,100,128,.25); }
+.etapa-1 { background:rgba(61,214,140,.1); color:var(--green); border:1px solid rgba(61,214,140,.25); }
+.etapa-2 { background:rgba(79,179,246,.1); color:var(--sky); border:1px solid rgba(79,179,246,.25); }
+.etapa-3 { background:rgba(157,126,247,.1); color:var(--purple); border:1px solid rgba(157,126,247,.25); }
+.etapa-4 { background:rgba(245,200,66,.1); color:var(--yellow); border:1px solid rgba(245,200,66,.25); }
+.etapa-5 { background:rgba(240,144,85,.1); color:var(--orange); border:1px solid rgba(240,144,85,.25); }
+.etapa-6 { background:rgba(125,206,255,.1); color:var(--sky2); border:1px solid rgba(125,206,255,.25); }
+.etapa-7 { background:rgba(201,168,76,.12); color:var(--gold); border:1px solid rgba(201,168,76,.3); }
+
+/* ACTIONS */
+.actions { display:flex; gap:5px; justify-content:center; flex-wrap:wrap; }
+.btn-icon { width:30px; height:30px; border:none; border-radius:8px; cursor:pointer; font-size:12px; display:grid; place-items:center; transition:var(--transition); position:relative; }
+.btn-next { background:rgba(61,214,140,.12); color:var(--green); }
+.btn-delete { background:rgba(240,100,100,.12); color:var(--red); }
+.btn-prev { background:rgba(79,179,246,.12); color:var(--sky); }
+.btn-note { background:rgba(157,126,247,.12); color:var(--purple); }
+.btn-next:hover { background:var(--green); color:#0a1a0f; transform:scale(1.1); }
+.btn-delete:hover { background:var(--red); color:#fff; transform:scale(1.1); }
+.btn-prev:hover { background:var(--sky); color:#0a1220; transform:scale(1.1); }
+.btn-note:hover { background:var(--purple); color:#fff; transform:scale(1.1); }
+.btn-icon::after { content:attr(data-tip); position:absolute; bottom:calc(100% + 6px); left:50%; transform:translateX(-50%); background:var(--surface3); color:var(--text); font-size:10px; white-space:nowrap; padding:4px 8px; border-radius:6px; border:1px solid var(--border2); opacity:0; pointer-events:none; transition:opacity .15s; z-index:10; }
+.btn-icon:hover::after { opacity:1; }
+
+/* BANCOS */
+.bancos-grid { display:flex; gap:4px; flex-wrap:wrap; justify-content:center; }
+.banco-btn { display:flex; flex-direction:column; align-items:center; gap:2px; padding:4px; border-radius:8px; border:1.5px solid transparent; cursor:pointer; background:var(--surface3); transition:var(--transition); opacity:.3; filter:grayscale(1); min-width:36px; }
+.banco-btn:hover { opacity:.65; filter:grayscale(0); transform:translateY(-1px); }
+.banco-btn.ativo { opacity:1; filter:grayscale(0); transform:translateY(-1px); }
+.banco-btn .banco-logo { width:22px; height:22px; border-radius:5px; display:grid; place-items:center; overflow:hidden; background:#fff; }
+.banco-btn .banco-logo img { width:100%; height:100%; object-fit:contain; }
+.banco-btn .banco-nome { font-size:7px; font-weight:700; color:var(--text3); text-transform:uppercase; letter-spacing:.3px; }
+.banco-btn.ativo .banco-nome { color:var(--text2); }
+.banco-btn[data-banco="Bradesco"].ativo { border-color:#cc092f; background:rgba(204,9,47,.1); }
+.banco-btn[data-banco="Itaú"].ativo { border-color:#ec7000; background:rgba(236,112,0,.1); }
+.banco-btn[data-banco="Santander"].ativo { border-color:#ec0000; background:rgba(236,0,0,.1); }
+.banco-btn[data-banco="Inter"].ativo { border-color:#ff7a00; background:rgba(255,122,0,.1); }
+.banco-btn[data-banco="Caixa"].ativo { border-color:#005b9e; background:rgba(0,91,158,.1); }
+.sem-banco { font-size:10px; color:var(--red); font-weight:600; display:flex; align-items:center; gap:3px; white-space:nowrap; }
+.proposta-banco-wrap { margin-top:4px; display:flex; align-items:center; gap:3px; }
+.proposta-banco-input { background:transparent; border:none; border-bottom:1px dashed var(--border2); color:var(--text3); font-family:inherit; font-size:10px; width:68px; text-align:center; outline:none; padding:1px 3px; transition:var(--transition); }
+.proposta-banco-input:focus { border-color:var(--gold); color:var(--text); }
+.proposta-banco-input::placeholder { color:#253045; }
+
+/* REGISTRO */
+.registro-box { background:var(--bg); border:1px solid var(--border2); padding:16px 20px; border-radius:10px; text-align:left; display:flex; align-items:center; gap:16px; flex-wrap:wrap; }
+.registro-box b { color:var(--gold); font-size:12px; }
+.registro-box select { padding:7px 12px; border-radius:var(--radius-sm); border:1px solid var(--border2); background:var(--surface2); color:var(--text); font-family:inherit; font-size:12px; outline:none; }
+.registro-credenciais { display:flex; gap:12px; align-items:center; flex-wrap:wrap; }
+.cred-field { display:flex; flex-direction:column; gap:4px; }
+.cred-label { font-size:9px; font-weight:700; color:var(--text3); text-transform:uppercase; letter-spacing:.8px; }
+.cred-wrap { display:flex; align-items:center; gap:5px; }
+.cred-input { padding:7px 10px; border-radius:var(--radius-sm); border:1px solid var(--border2); background:var(--surface2); color:var(--text); font-family:inherit; font-size:12px; outline:none; width:140px; transition:var(--transition); }
+.cred-input:focus { border-color:rgba(201,168,76,.5); }
+.cred-copy { width:28px; height:28px; border:1px solid var(--border2); border-radius:var(--radius-sm); background:var(--surface3); color:var(--text2); cursor:pointer; font-size:12px; display:grid; place-items:center; transition:var(--transition); }
+.cred-copy:hover { border-color:var(--gold); background:rgba(201,168,76,.1); transform:scale(1.1); }
+.btn-registro-link { padding:7px 14px; background:rgba(201,168,76,.12); color:var(--gold); border:1px solid rgba(201,168,76,.3); border-radius:var(--radius-sm); font-family:inherit; font-size:12px; font-weight:600; cursor:pointer; text-decoration:none; transition:var(--transition); display:inline-flex; align-items:center; gap:6px; }
+.btn-registro-link:hover { background:rgba(201,168,76,.2); }
+
+/* TAGS */
+.tags-wrap { display:flex; flex-wrap:wrap; gap:3px; margin-top:4px; }
+.tag { display:inline-flex; align-items:center; gap:3px; padding:2px 8px; border-radius:20px; font-size:10px; font-weight:600; cursor:default; border:1px solid transparent; white-space:nowrap; }
+.tag .tag-x { font-size:9px; opacity:.6; margin-left:1px; cursor:pointer; transition:opacity .15s; }
+.tag .tag-x:hover { opacity:1; }
+.tag-add-btn { display:inline-flex; align-items:center; gap:2px; padding:2px 8px; border-radius:20px; font-size:10px; font-weight:600; cursor:pointer; border:1px dashed var(--border2); background:transparent; color:var(--text3); font-family:inherit; transition:var(--transition); }
+.tag-add-btn:hover { border-color:var(--gold); color:var(--gold); }
+.contact-quick{display:flex;gap:6px;flex-wrap:wrap;margin-top:6px;}
+.contact-chip{display:inline-flex;align-items:center;gap:4px;padding:4px 8px;border-radius:999px;border:1px solid rgba(79,179,246,.18);background:rgba(79,179,246,.08);color:var(--sky2);font-size:11px;font-weight:600;text-decoration:none;transition:var(--transition);}
+.contact-chip:hover{transform:translateY(-1px);border-color:rgba(79,179,246,.32);background:rgba(79,179,246,.14);}
+.contact-phone{font-size:12px;color:var(--text2);margin-top:4px;display:flex;align-items:center;gap:6px;flex-wrap:wrap;}
+.contact-phone strong{color:var(--text);}
+.tag-filter-btn { padding:4px 12px; border-radius:20px; font-size:11px; font-weight:600; cursor:pointer; border:1.5px solid transparent; background:transparent; font-family:inherit; transition:var(--transition); white-space:nowrap; opacity:.55; }
+.tag-filter-btn:hover { opacity:.8; }
+.tag-filter-btn.ativo { opacity:1; box-shadow:0 0 0 1px currentColor; }
+.nota-dot { display:inline-block; width:6px; height:6px; border-radius:50%; background:var(--purple); margin-left:5px; vertical-align:middle; flex-shrink:0; }
+.status-count { display:inline-block; font-size:10px; color:var(--sky); cursor:pointer; margin-top:3px; font-weight:600; }
+.status-count:hover { text-decoration:underline; }
+.status-ts { font-size:10px; color:var(--text3); margin-top:2px; }
+.meta-info { display:flex; flex-wrap:wrap; gap:4px; margin-top:4px; }
+.meta-chip { font-size:10px; padding:1px 7px; border-radius:20px; font-weight:600; }
+.meta-entrada { background:rgba(79,179,246,.08); color:var(--sky); border:1px solid rgba(79,179,246,.15); }
+
+/* MODALS */
+.modal-overlay { display:none; position:fixed; inset:0; background:rgba(0,0,0,.7); backdrop-filter:blur(4px); z-index:200; place-items:center; }
+.modal-overlay.open { display:grid; }
+.modal { background:var(--surface2); border:1px solid var(--border2); border-radius:18px; padding:32px 36px; width:460px; max-width:94vw; text-align:center; box-shadow:var(--shadow-lg); animation:modalPop .18s cubic-bezier(.34,1.56,.64,1); position:relative; overflow:hidden; }
+.modal::before { content:''; position:absolute; top:0; left:0; right:0; height:1px; background:linear-gradient(90deg,transparent,rgba(255,255,255,.1),transparent); }
+@keyframes modalPop { from{transform:scale(.94);opacity:0} to{transform:scale(1);opacity:1} }
+.modal h3 { font-size:18px; font-family:'Playfair Display',serif; margin-bottom:8px; }
+.modal p { color:var(--text2); font-size:13px; margin-bottom:20px; }
+.modal-btns { display:flex; gap:10px; justify-content:center; margin-top:20px; }
+.modal-btns button { padding:10px 26px; border-radius:var(--radius-sm); border:none; font-family:inherit; font-size:13px; font-weight:600; cursor:pointer; transition:var(--transition); }
+.modal-btns button:hover { opacity:.85; transform:translateY(-1px); }
+.btn-cancel { background:var(--surface3); color:var(--text2); border:1px solid var(--border2) !important; }
+.btn-confirm { background:var(--red); color:#fff; }
+.btn-save-note { background:linear-gradient(135deg,var(--gold),#a8862e); color:#0a0d12; }
+#modalNota textarea { width:100%; min-height:130px; background:var(--bg); border:1px solid var(--border2); border-radius:var(--radius-sm); color:var(--text); font-family:inherit; font-size:13px; padding:12px 14px; outline:none; resize:vertical; transition:var(--transition); }
+#modalNota textarea:focus { border-color:rgba(201,168,76,.5); }
+.parado-item { display:flex; align-items:center; justify-content:space-between; padding:12px 16px; border-radius:10px; background:var(--surface3); margin-bottom:6px; gap:12px; text-align:left; }
+.parado-item .parado-nome { font-weight:600; font-size:13px; }
+.parado-item .parado-info { font-size:11px; color:var(--text3); margin-top:2px; }
+.parado-badge { padding:3px 10px; border-radius:20px; font-size:11px; font-weight:700; white-space:nowrap; flex-shrink:0; }
+.hist-item { text-align:left; padding:10px 14px; border-radius:10px; background:var(--surface3); margin-bottom:6px; }
+.hist-item .hist-val { font-size:13px; font-weight:600; color:var(--text); }
+.hist-item .hist-date { font-size:10px; color:var(--text3); margin-top:3px; }
+.hist-list { max-height:320px; overflow-y:auto; margin-top:4px; }
+.hist-list::-webkit-scrollbar { width:3px; }
+.hist-list::-webkit-scrollbar-thumb { background:var(--border2); border-radius:4px; }
+
+/* TOAST */
+#toast { position:fixed; bottom:32px; left:50%; transform:translateX(-50%) translateY(10px); background:var(--surface2); border:1px solid var(--border2); color:var(--text); padding:11px 24px; border-radius:20px; font-size:12px; font-weight:600; box-shadow:var(--shadow-lg); opacity:0; pointer-events:none; transition:opacity .25s,transform .25s; z-index:300; white-space:nowrap; letter-spacing:.3px; }
+#toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
+
+/* MISC */
+.caixa-info { background:rgba(0,91,158,.08); border:1px solid rgba(77,166,255,.2); border-radius:10px; padding:12px 18px; margin-bottom:20px; font-size:12px; color:#5aaeff; display:flex; align-items:center; gap:8px; }
+.empty { padding:56px 20px; text-align:center; color:var(--text3); }
+.empty p { font-size:14px; }
+
+/* RESPONSIVE */
+@media(max-width:900px){
+  header,.tabs,.toolbar,.container { padding-left:20px; padding-right:20px; }
+  #tag-filter-bar { padding:0 20px; }
+  .cards { grid-template-columns:repeat(2,1fr); gap:10px; }
+  .pipeline { grid-template-columns:repeat(5,1fr); gap:6px; }
+  .form-grid { grid-template-columns:1fr 1fr; gap:10px; }
+  .form-grid label:last-of-type,.btn-add { grid-column:1/-1; }
+  .btn-add { width:100%; }
+  .header-divider { display:none; }
+  .toolbar-select { min-width:150px; }
+}
+@media(max-width:600px){
+  header { padding:16px; gap:12px; }
+  .tabs { padding:0 16px; overflow-x:auto; flex-wrap:nowrap; scrollbar-width:none; }
+  .tabs::-webkit-scrollbar { display:none; }
+  .toolbar,.container { padding-left:16px; padding-right:16px; }
+  #tag-filter-bar { padding:0 16px; }
+  .cards { grid-template-columns:1fr; gap:8px; }
+  .card { padding:14px; gap:12px; }
+  .card-value { font-size:22px; }
+  .card-value.bank-leader { font-size:16px; }
+  .card-icon { width:36px; height:36px; font-size:15px; }
+  .pipeline { grid-template-columns:repeat(3,1fr); }
+  .step strong { font-size:18px; }
+  .form-grid { grid-template-columns:1fr; }
+  .toolbar { gap:8px; }
+  .toolbar-select { width:100%; min-width:0; }
+  .table-box { background:transparent; border:none; padding:0; overflow:visible; }
+  table, thead, tbody, th, td, tr { display:block; width:100%; }
+  thead { display:none; }
+  tbody { display:grid; gap:12px; }
+  tbody tr { background:var(--surface); border:1px solid var(--border); border-radius:14px; padding:12px; box-shadow:var(--shadow); }
+  tbody td { display:flex; justify-content:space-between; align-items:flex-start; gap:12px; border:none; padding:8px 0; min-width:0; text-align:right; }
+  tbody td::before { content:attr(data-label); color:var(--text3); font-size:10px; font-weight:700; text-transform:uppercase; letter-spacing:.8px; text-align:left; flex:0 0 112px; }
+  tbody td:first-child { padding-top:0; }
+  tbody td:first-child::before { content:'Cliente'; }
+  tbody td:last-child { padding-bottom:0; }
+  tbody td > * { max-width:100%; }
+  tbody td .actions { justify-content:flex-end; width:100%; }
+  tbody td .bancos-wrap { justify-content:flex-end; }
+  tbody td .bancos-grid { justify-content:flex-end; }
+  tbody td .contact-quick { justify-content:flex-end; }
+  tbody td .meta-info, tbody td .tags-wrap { justify-content:flex-end; }
+  tbody tr td[colspan] { display:block; text-align:left; }
+  tbody tr td[colspan]::before { content:''; display:none; }
+  .logo-title { font-size:17px; }
+}
+body.compact .form-box { padding:18px 22px; }
+body.compact .cards { gap:10px; }
+body.compact .card { padding:14px 16px; gap:12px; }
+</style>
+</head>
+<body>
+<div class="app-wrapper">
+
+<header>
+  <div class="logo-wrap">
+    <svg width="48" height="48" viewBox="0 0 48 48" xmlns="http://www.w3.org/2000/svg">
+      <defs>
+        <linearGradient id="lg1" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#1a6fc4"/><stop offset="100%" stop-color="#0d4a8a"/></linearGradient>
+        <linearGradient id="lg2" x1="0" y1="0" x2="1" y2="1"><stop offset="0%" stop-color="#c9a84c"/><stop offset="100%" stop-color="#8a6420"/></linearGradient>
+      </defs>
+      <rect x="4" y="20" width="40" height="24" rx="3" fill="url(#lg1)"/>
+      <polygon points="24,4 46,22 2,22" fill="url(#lg2)"/>
+      <rect x="19" y="28" width="10" height="16" rx="2" fill="white" opacity="0.9"/>
+    </svg>
+    <div class="logo-text">
+      <div class="logo-title"><span>G6</span> Imobiliário</div>
+      
+    </div>
+  </div>
+  <div class="header-divider"></div>
+  <div id="status-bar"></div>
+  <div class="header-actions">
+    <button class="btn-icon-header" id="btn-lupa" onclick="toggleBusca()" title="Buscar">🔍</button>
+    <div id="busca-box">
+      <input id="busca-input" type="text" placeholder="Buscar cliente..." oninput="filtrarBusca(this.value)">
+      <div id="busca-resultados"></div>
+    </div>
+  </div>
+</header>
+
+<div class="tabs">
+  <button class="tab-btn active" data-tab="geral" onclick="trocarAba('geral',this)">🏦 Geral</button>
+  <button class="tab-btn" data-tab="caixa" onclick="trocarAba('caixa',this)">🏛 Caixa</button>
+  <button class="tab-btn" data-tab="finalizados" id="tab-btn-finalizados" onclick="trocarAba('finalizados',this)">✅ Finalizados</button>
+</div>
+
+<div class="toolbar" id="toolbar-geral">
+  <button class="filter-btn" id="fb-aprovado" onclick="toggleFiltroRetorno('aprovado')">✅ Aprovado</button>
+  <button class="filter-btn" id="fb-condicionado" onclick="toggleFiltroRetorno('condicionado')">⚠ Condicionado</button>
+  <button class="filter-btn" id="fb-reprovado" onclick="toggleFiltroRetorno('reprovado')">❌ Reprovado</button>
+  <select id="filtro-banco" class="toolbar-select" onchange="setFiltroBanco(this.value)">
+    <option value="">🏦 Todos os bancos</option>
+    <option value="Bradesco">Bradesco</option>
+    <option value="Itaú">Itaú</option>
+    <option value="Santander">Santander</option>
+    <option value="Inter">Inter</option>
+    <option value="Caixa">Caixa</option>
+  </select>
+  <button class="btn-toolbar" id="btn-parados" onclick="toggleFiltroParados()">⏳ Parados +7 dias</button>
+  <button class="btn-toolbar" id="btn-sem-proposta" onclick="toggleFiltroSemProposta()">📭 Sem proposta</button>
+  <div class="toolbar-sep"></div>
+  <button class="btn-toolbar" onclick="exportarCSV()">⬇ Exportar CSV</button>
+  <button class="btn-toolbar" id="btn-compacto" onclick="toggleCompacto()">⊟ Compacto</button>
+</div>
+
+<div id="tag-filter-bar"></div>
+
+<!-- ABA GERAL -->
+<div id="tab-geral" class="tab-panel active">
+<div class="container">
+  <div class="cards">
+    <div class="card"><div class="card-icon gold">👥</div><div class="card-info"><span class="card-label">Total de Clientes</span><span class="card-value gold" id="totalClientes">0</span></div></div>
+    <div class="card"><div class="card-icon green">✅</div><div class="card-info"><span class="card-label">Aprovados</span><span class="card-value green" id="totalAprovados">0</span></div></div>
+    <div class="card"><div class="card-icon blue">📝</div><div class="card-info"><span class="card-label">Em Contratação</span><span class="card-value blue" id="totalContratacao">0</span></div></div>
+    <div class="card"><div class="card-icon purple">🏁</div><div class="card-info"><span class="card-label">Taxa de Conversão</span><span class="card-value purple" id="taxaConversao">0%</span></div></div>
+    <div class="card"><div class="card-icon blue">💰</div><div class="card-info"><span class="card-label">Ticket Médio</span><span class="card-value blue" id="ticketMedio">R$ 0</span></div></div>
+    <div class="card"><div class="card-icon gold">⏳</div><div class="card-info"><span class="card-label">Parados +7 dias</span><span class="card-value gold" id="clientesParados">0</span></div></div>
+    <div class="card"><div class="card-icon purple">📭</div><div class="card-info"><span class="card-label">Sem Proposta</span><span class="card-value purple" id="clientesSemProposta">0</span><span class="card-subvalue" id="clientesSemPropostaPct">0% da base</span></div></div>
+    <div class="card"><div class="card-icon blue">🏦</div><div class="card-info"><span class="card-label">Banco Líder</span><span class="card-value bank-leader blue" id="bancoLider">—</span><span class="card-subvalue" id="bancoLiderMeta">0 clientes</span></div></div>
+  </div>
+  <div class="pipeline" id="pipeline"></div>
+  <div class="form-box">
+    <div class="form-header"><div class="form-header-dot"></div><h3>Adicionar Cliente</h3></div>
+    <div class="form-grid">
+      <label>Nome<input id="nome" placeholder="Nome completo do cliente"></label>
+      <label>Parceiro<input id="parceiro" placeholder="Nome do parceiro"></label>
+      <label>Telefone<input id="telefone" placeholder="(48) 99999-9999"></label>
+      <label>Retorno<select id="retorno"><option value="aprovado">✅ Aprovado</option><option value="condicionado">⚠ Condicionado</option><option value="reprovado">❌ Reprovado</option></select></label>
+      <label>Financiamento<input id="valor" placeholder="R$ 0,00"></label>
+      <label>Valor Imóvel<input id="valorImovel" placeholder="R$ 0,00"></label>
+      <button class="btn-add" id="btn-add-geral">+ Adicionar</button>
+    </div>
+  </div>
+  <div class="table-box">
+    <table>
+      <thead><tr>
+        <th class="sortable" data-col="nome" onclick="ordenarPor('nome')">Nome<span class="sort-arrow">↕</span></th>
+        <th>Parceiro</th>
+        <th class="sortable" data-col="retorno" onclick="ordenarPor('retorno')">Retorno<span class="sort-arrow">↕</span></th>
+        <th>Financiamento</th>
+        <th>Valor Imóvel</th>
+        <th>Status</th>
+        <th class="sortable" data-col="etapa" onclick="ordenarPor('etapa')">Etapa<span class="sort-arrow">↕</span></th>
+        <th>Bancos / Proposta</th>
+        <th>Ações</th>
+      </tr></thead>
+      <tbody id="tabela"></tbody>
+    </table>
+  </div>
+</div>
+</div>
+
+<!-- ABA CAIXA -->
+<div id="tab-caixa" class="tab-panel">
+<div class="container">
+  <div class="caixa-info">🏛 Esta aba mostra automaticamente todos os clientes que têm a <strong>Caixa</strong> selecionada.</div>
+  <div class="cards">
+    <div class="card"><div class="card-icon blue">👥</div><div class="card-info"><span class="card-label">Clientes Caixa</span><span class="card-value blue" id="cx-totalClientes">0</span></div></div>
+    <div class="card"><div class="card-icon green">✅</div><div class="card-info"><span class="card-label">Aprovados</span><span class="card-value green" id="cx-totalAprovados">0</span></div></div>
+    <div class="card"><div class="card-icon blue">📝</div><div class="card-info"><span class="card-label">Em Contratação</span><span class="card-value blue" id="cx-totalContratacao">0</span></div></div>
+    <div class="card"><div class="card-icon gold">💰</div><div class="card-info"><span class="card-label">Ticket Médio</span><span class="card-value gold" id="cx-ticketMedio">R$ 0</span></div></div>
+  </div>
+  <div class="pipeline" id="cx-pipeline"></div>
+  <div class="table-box">
+    <table>
+      <thead><tr><th>Nome</th><th>Parceiro</th><th>Retorno</th><th>Financiamento</th><th>Valor Imóvel</th><th>Status</th><th>Etapa</th><th>Bancos / Proposta</th><th>Ações</th></tr></thead>
+      <tbody id="cx-tabela"></tbody>
+    </table>
+  </div>
+</div>
+</div>
+
+<!-- ABA FINALIZADOS -->
+<div id="tab-finalizados" class="tab-panel">
+<div class="container">
+  <div class="caixa-info" style="background:rgba(61,214,140,.06);border-color:rgba(61,214,140,.2);color:var(--green);">✅ Clientes marcados como <strong>Finalizados</strong> — arquivados fora do fluxo principal.</div>
+  <div class="cards" style="grid-template-columns:repeat(2,1fr)">
+    <div class="card"><div class="card-icon green">✅</div><div class="card-info"><span class="card-label">Total Finalizados</span><span class="card-value green" id="fin-total">0</span></div></div>
+    <div class="card"><div class="card-icon blue">📅</div><div class="card-info"><span class="card-label">Último Finalizado</span><span class="card-value blue" style="font-size:16px" id="fin-ultimo">—</span></div></div>
+  </div>
+  <div class="table-box">
+    <table>
+      <thead><tr><th>Nome</th><th>Parceiro</th><th>Retorno</th><th>Financiamento</th><th>Valor Imóvel</th><th>Status Final</th><th>Etapa</th><th>Bancos</th><th>Ações</th></tr></thead>
+      <tbody id="fin-tabela"></tbody>
+    </table>
+  </div>
+</div>
+</div>
+
+<!-- MODAL EXCLUIR -->
+<div class="modal-overlay" id="modalExcluir">
+  <div class="modal">
+    <h3>Excluir cliente?</h3>
+    <p>Essa ação não pode ser desfeita.</p>
+    <div class="modal-btns">
+      <button class="btn-cancel" id="btn-cancel">Cancelar</button>
+      <button class="btn-confirm" id="btn-confirm">Excluir</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL HISTÓRICO -->
+<div class="modal-overlay" id="modalHistorico">
+  <div class="modal" style="text-align:left;width:500px;max-width:94vw;">
+    <h3 style="margin-bottom:4px;">Histórico de Status</h3>
+    <p id="hist-cliente-nome" style="font-size:13px;color:var(--gold);margin-bottom:12px;"></p>
+    <div class="hist-list" id="hist-list"></div>
+    <div class="modal-btns" style="justify-content:flex-end;"><button class="btn-cancel" onclick="fecharModalHistorico()">Fechar</button></div>
+  </div>
+</div>
+
+<!-- MODAL NOTA -->
+<div class="modal-overlay" id="modalNota">
+  <div class="modal" style="text-align:left;width:480px;max-width:94vw;">
+    <h3 style="margin-bottom:4px;">Nota</h3>
+    <p id="nota-cliente-nome" style="font-size:13px;color:var(--gold);margin-bottom:12px;"></p>
+    <textarea id="nota-textarea" placeholder="Digite sua nota aqui..."></textarea>
+    <div class="modal-btns">
+      <button class="btn-cancel" onclick="fecharModalNota()">Cancelar</button>
+      <button class="btn-save-note" onclick="salvarNota()">Salvar Nota</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL TAGS -->
+<div class="modal-overlay" id="modalTags">
+  <div class="modal" style="text-align:left;width:480px;max-width:94vw;">
+    <h3 style="margin-bottom:4px;">Etiquetas</h3>
+    <p id="tag-cliente-nome" style="font-size:13px;color:var(--gold);margin-bottom:12px;"></p>
+    <div id="tag-lista-atual" style="margin-bottom:12px;display:flex;flex-wrap:wrap;gap:5px;min-height:28px;"></div>
+    <div style="display:flex;gap:8px;margin-bottom:10px;">
+      <input id="tag-input" type="text" placeholder="Nova etiqueta..." style="flex:1;padding:9px 12px;border-radius:8px;border:1px solid var(--border2);background:var(--bg);color:var(--text);font-family:inherit;font-size:13px;outline:none;" onkeydown="if(event.key==='Enter')window._g6.adicionarTag()">
+      <button onclick="window._g6.adicionarTag()" style="padding:9px 16px;background:rgba(201,168,76,.15);border:1px solid rgba(201,168,76,.3);color:var(--gold);border-radius:8px;cursor:pointer;font-family:inherit;font-size:12px;font-weight:600;">+ Add</button>
+    </div>
+    <div id="tag-sugestoes" style="display:flex;flex-wrap:wrap;gap:4px;margin-bottom:4px;align-items:center;"></div>
+    <div class="modal-btns" style="justify-content:flex-end;margin-top:16px;"><button class="btn-cancel" onclick="fecharModalTags()">Fechar</button></div>
+  </div>
+</div>
+
+<div id="toast"></div>
+</div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-app.js";
+import { getDatabase, ref, set, onValue } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-database.js";
+const firebaseConfig = { apiKey:"AIzaSyAi-xqHKf3POtrpYS5CZfre7g1PscSFtAk", authDomain:"g6-imob-5f6d9.firebaseapp.com", databaseURL:"https://g6-imob-5f6d9-default-rtdb.firebaseio.com", projectId:"g6-imob-5f6d9", storageBucket:"g6-imob-5f6d9.firebasestorage.app", messagingSenderId:"553843254567", appId:"1:553843254567:web:a23b85b852fab7ec297502" };
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+const clientesRef = ref(db, "clientes");
+const TAG_CORES = [
+  {bg:'rgba(79,179,246,.15)',border:'#4fb3f6',text:'#4fb3f6'},
+  {bg:'rgba(157,126,247,.15)',border:'#9d7ef7',text:'#9d7ef7'},
+  {bg:'rgba(240,144,85,.15)',border:'#f09055',text:'#f09055'},
+  {bg:'rgba(61,214,140,.15)',border:'#3dd68c',text:'#3dd68c'},
+  {bg:'rgba(245,200,66,.15)',border:'#f5c842',text:'#f5c842'},
+  {bg:'rgba(240,100,100,.15)',border:'#f06464',text:'#f06464'},
+  {bg:'rgba(236,72,153,.15)',border:'#ec4899',text:'#ec4899'},
+  {bg:'rgba(20,184,166,.15)',border:'#14b8a6',text:'#14b8a6'},
+];
+let tagCoreMap={};
+function corDaTag(tag){if(tagCoreMap[tag]===undefined){tagCoreMap[tag]=Object.keys(tagCoreMap).length%TAG_CORES.length;}return TAG_CORES[tagCoreMap[tag]];}
+function tagHTML(tag,removerFn){const c=corDaTag(tag);return`<span class="tag" style="background:${c.bg};border-color:${c.border};color:${c.text};">${tag}${removerFn?`<span class="tag-x" onclick="${removerFn}">✕</span>`:''}</span>`;}
+const etapas=["Atendido","Aprovado","Contratação","Engenharia","Jurídico","Assinatura","Registro","Pagamento"];
+const todosBancos=["Bradesco","Itaú","Santander","Inter","Caixa"];
+const bancosLogos={"Bradesco":"https://www.google.com/s2/favicons?domain=bradesco.com.br&sz=64","Itaú":"https://www.google.com/s2/favicons?domain=itau.com.br&sz=64","Santander":"https://www.google.com/s2/favicons?domain=santander.com.br&sz=64","Inter":"https://www.google.com/s2/favicons?domain=inter.co&sz=64","Caixa":"https://www.google.com/s2/favicons?domain=caixa.gov.br&sz=64"};
+let clientes=[],filtroEtapa=null,filtroRetorno=null,filtroTag=null,filtroBanco='',filtroParados=false,filtroSemProposta=false,cxFiltroEtapa=null,indexParaExcluir=null,notaIndex=null,tagIndex=null,sortCol=null,sortDir=1;
+function agora(){const d=new Date();return d.toLocaleDateString('pt-BR')+' às '+d.toLocaleTimeString('pt-BR',{hour:'2-digit',minute:'2-digit'});}
+function gerarId(){return 'cli_'+Date.now().toString(36)+Math.random().toString(36).slice(2,8);}
+function parseValor(v){if(v===null||v===undefined)return 0;if(typeof v==='number')return Number.isFinite(v)?v:0;const limpo=String(v).replace(/[^\d,.-]/g,'').replace(/\./g,'').replace(',', '.');const n=parseFloat(limpo);return Number.isFinite(n)?n:0;}
+function formatarMoeda(v){const n=parseValor(v);return n.toLocaleString('pt-BR',{style:'currency',currency:'BRL',maximumFractionDigits:2});}
+function mascararMoedaInput(el){if(!el)return;const nums=el.value.replace(/\D/g,'');if(!nums){el.value='';return;}const n=Number(nums)/100;el.value=n.toLocaleString('pt-BR',{style:'currency',currency:'BRL'});}
+function limparTelefone(v){return String(v||'').replace(/\D/g,'');}
+function formatarTelefone(v){const d=limparTelefone(v);if(!d)return'';if(d.length<=10)return d.replace(/(\d{2})(\d{0,4})(\d{0,4})/,(_,a,b,c)=>`(${a}) ${b}${c?'-'+c:''}`.trim());return d.replace(/(\d{2})(\d{0,5})(\d{0,4}).*/,(_,a,b,c)=>`(${a}) ${b}${c?'-'+c:''}`.trim());}
+function mascararTelefoneInput(el){if(!el)return;el.value=formatarTelefone(el.value);}
+function telefoneWhatsapp(v){const d=limparTelefone(v);if(!d)return'';return d.length>=10?`55${d}`:'';}
+function marcarCampoSalvo(el){if(!el)return;el.classList.add('saved');clearTimeout(el._savedTimer);el._savedTimer=setTimeout(()=>el.classList.remove('saved'),900);}
+function prepararClientes(raw){if(!raw)return [];const lista=Array.isArray(raw)?raw:Object.values(raw);return lista.map(normalizeCliente);}
+function diasDesde(iso){if(!iso)return null;return Math.floor((Date.now()-new Date(iso).getTime())/86400000);}
+function diasAte(dateStr){if(!dateStr)return null;const hoje=new Date();hoje.setHours(0,0,0,0);const alvo=new Date(dateStr+'T00:00:00');return Math.ceil((alvo-hoje)/86400000);}
+function diasBadge(d){if(d===null)return'';const cls=d<=3?'dias-red':d<=7?'dias-laranja':d<=14?'dias-yellow':'dias-verde';return`<span class="dias-badge ${cls}">${d}d</span>`;}
+function clienteEstaParado(c){const d=diasDesde(c.ultimaAtualizacao||c.etapaDesde||c.dataCadastro);return d!==null&&d>7;}
+function clienteSemProposta(c){const props=c.propostasBanco||{};const temBanco=Array.isArray(c.bancos)&&c.bancos.length>0;const temProposta=Object.values(props).some(v=>String(v||'').trim());return !temBanco||!temProposta;}
+function formatarData(iso){if(!iso)return'—';return new Date(iso).toLocaleDateString('pt-BR');}
+function setStatus(msg,cor){const el=document.getElementById("status-bar");if(!el)return;el.textContent=msg;el.style.background=cor==="ok"?"rgba(61,214,140,.12)":cor==="err"?"rgba(240,100,100,.12)":"rgba(245,200,66,.12)";el.style.color=cor==="ok"?"#3dd68c":cor==="err"?"#f06464":"#f5c842";el.style.border=`1px solid ${cor==="ok"?"rgba(61,214,140,.25)":cor==="err"?"rgba(240,100,100,.25)":"rgba(245,200,66,.25)"}`;el.style.display="block";if(cor==="ok")setTimeout(()=>el.style.display="none",2000);}
+function toast(msg){const el=document.getElementById("toast");el.textContent=msg;el.classList.add("show");clearTimeout(el._t);el._t=setTimeout(()=>el.classList.remove("show"),2200);}
+function normalizeCliente(c){if(!c.id)c.id=gerarId();if(!Array.isArray(c.bancos))c.bancos=c.bancos?[c.bancos]:[];if(!Array.isArray(c.statusHistory))c.statusHistory=[];if(!Array.isArray(c.tags))c.tags=[];if(c.nota===undefined)c.nota='';if(c.etapaDesde===undefined)c.etapaDesde=null;if(c.dataCadastro===undefined)c.dataCadastro=null;if(c.prazo===undefined)c.prazo='';if(!c.propostasBanco)c.propostasBanco={};if(c.finalizado===undefined)c.finalizado=false;c.telefone=formatarTelefone(c.telefone||'');c.valorNumero=parseValor(c.valorNumero??c.valor);c.valorImovelNumero=parseValor(c.valorImovelNumero??c.valorImovel);c.valor=c.valorNumero?formatarMoeda(c.valorNumero):'';c.valorImovel=c.valorImovelNumero?formatarMoeda(c.valorImovelNumero):'';return c;}
+onValue(clientesRef,(snapshot)=>{const data=snapshot.val();clientes=prepararClientes(data);clientes.forEach(c=>(c.tags||[]).forEach(t=>corDaTag(t)));render();renderCaixa();renderFinalizados();atualizarFiltroToolbar();setStatus('✓ Sincronizado','ok');},(()=>setStatus('⚠ Sem conexão','err')));
+function salvar(){const obj={};clientes.forEach(c=>{obj[c.id||gerarId()]=normalizeCliente(c);});const btn=document.getElementById('btn-add-geral');if(btn){btn.disabled=true;btn.textContent='Salvando...';}setStatus('⏳ Salvando...','warn');set(clientesRef,obj).then(()=>setStatus('✓ Salvo','ok')).catch(()=>setStatus('⚠ Erro ao salvar','err')).finally(()=>{if(btn){btn.disabled=false;btn.textContent='+ Adicionar';}});}
+function obterLinkRegistro(r){const links={"1":"https://1riflorianopolis-sc.sistemaasgard.com.br/app/v1/#/acompanhamento-online","2":"https://2riflorianopolis-sc.sistemaasgard.com.br/app/v1/#/acompanhamento-online","3":"https://3riflorianopolis-sc.sistemaasgard.com.br/app/v1/#/acompanhamento-online","4":"https://4riflorianopolis-sc.sistemaasgard.com.br/app/v1/#/acompanhamento-online","5":"https://5riflorianopolis-sc.sistemaasgard.com.br/app/v1/#/acompanhamento-online"};return links[r]||"";}
+function adicionarCliente(){const n=document.getElementById('nome'),p=document.getElementById('parceiro'),t=document.getElementById('telefone'),r=document.getElementById('retorno'),v=document.getElementById('valor'),vi=document.getElementById('valorImovel');if(!n.value.trim()){n.focus();return;}const valorNumero=parseValor(v.value);const valorImovelNumero=parseValor(vi.value);clientes.push({id:gerarId(),nome:n.value.trim(),parceiro:p.value.trim(),telefone:formatarTelefone(t.value),retorno:r.value,valorNumero,valor:valorNumero?formatarMoeda(valorNumero):'',valorImovelNumero,valorImovel:valorImovelNumero?formatarMoeda(valorImovelNumero):'',status:'',bancos:[],etapa:0,registro:'',login:'',senha:'',proposta:'',registroSalvo:false,statusHistory:[],nota:'',etapaDesde:new Date().toISOString(),dataCadastro:new Date().toISOString(),ultimaAtualizacao:new Date().toISOString(),propostasBanco:{}});n.value='';p.value='';t.value='';v.value='';vi.value='';r.value='aprovado';salvar();toast('✅ Cliente adicionado');n.focus();}
+function pedirExclusao(i){indexParaExcluir=i;document.getElementById("modalExcluir").classList.add("open");}
+function fecharModal(){indexParaExcluir=null;document.getElementById("modalExcluir").classList.remove("open");}
+function confirmarExclusao(){if(indexParaExcluir!==null){clientes.splice(indexParaExcluir,1);salvar();toast("🗑 Cliente removido");}fecharModal();}
+function avancar(i){if(clientes[i].etapa<etapas.length-1){clientes[i].etapa++;clientes[i].etapaDesde=new Date().toISOString();salvar();toast("→ "+etapas[clientes[i].etapa]);}}
+function voltar(i){if(clientes[i].etapa>0){clientes[i].etapa--;clientes[i].etapaDesde=new Date().toISOString();salvar();toast("← "+etapas[clientes[i].etapa]);}}
+function alterarRetorno(i,v){clientes[i].retorno=v;salvar();}
+function alterarStatus(i,v){clientes[i].status=v;const ts=agora();clientes[i].statusData=ts;clientes[i].ultimaAtualizacao=new Date().toISOString();if(v){if(!Array.isArray(clientes[i].statusHistory))clientes[i].statusHistory=[];clientes[i].statusHistory.unshift({valor:v,data:ts});if(clientes[i].statusHistory.length>50)clientes[i].statusHistory.pop();}salvar();}
+function alterarPrazo(i,v){clientes[i].prazo=v;salvar();}
+function toggleBanco(i,banco){const idx=clientes[i].bancos.indexOf(banco);if(idx===-1)clientes[i].bancos.push(banco);else{clientes[i].bancos.splice(idx,1);delete clientes[i].propostasBanco[banco];}salvar();render();renderCaixa();}
+function alterarPropostaBanco(i,banco,v){if(!clientes[i].propostasBanco)clientes[i].propostasBanco={};clientes[i].propostasBanco[banco]=v;clientes[i].ultimaAtualizacao=new Date().toISOString();salvar();}
+function alterarCampoRegistro(i,campo,v){clientes[i][campo]=v;salvar();}
+function toggleRegistro(i){clientes[i].registroAberto=!clientes[i].registroAberto;render();}
+function abrirNota(i){notaIndex=i;document.getElementById("nota-cliente-nome").textContent=clientes[i].nome;document.getElementById("nota-textarea").value=clientes[i].nota||"";document.getElementById("modalNota").classList.add("open");setTimeout(()=>document.getElementById("nota-textarea").focus(),80);}
+function fecharModalNota(){notaIndex=null;document.getElementById("modalNota").classList.remove("open");}
+function salvarNota(){if(notaIndex===null)return;clientes[notaIndex].nota=document.getElementById("nota-textarea").value.trim();salvar();fecharModalNota();toast("📝 Nota salva");}
+window.fecharModalNota=fecharModalNota;window.salvarNota=salvarNota;
+function todasAsTags(){const s=new Set();clientes.forEach(c=>(c.tags||[]).forEach(t=>s.add(t)));return[...s].sort();}
+function abrirModalTags(i){tagIndex=i;document.getElementById('tag-cliente-nome').textContent=clientes[i].nome;renderTagsModal();document.getElementById('modalTags').classList.add('open');setTimeout(()=>document.getElementById('tag-input').focus(),80);}
+function fecharModalTags(){tagIndex=null;document.getElementById('modalTags').classList.remove('open');document.getElementById('tag-input').value='';}
+window.fecharModalTags=fecharModalTags;
+function renderTagsModal(){if(tagIndex===null)return;const tags=clientes[tagIndex].tags||[];document.getElementById('tag-lista-atual').innerHTML=tags.length?tags.map(t=>tagHTML(t,`window._g6.removerTag(${tagIndex},'${t.replace(/'/g,"\\'")}')`)).join(''):'<span style="font-size:12px;color:var(--text3);">Nenhuma etiqueta ainda.</span>';const sugestoes=todasAsTags().filter(t=>!tags.includes(t));document.getElementById('tag-sugestoes').innerHTML=sugestoes.length?'<span style="font-size:10px;color:var(--text3);margin-right:4px;">Sugestões:</span>'+sugestoes.map(t=>`<button class="tag-filter-btn" style="color:${corDaTag(t).text};border-color:${corDaTag(t).border};background:${corDaTag(t).bg}" onclick="window._g6.adicionarTagDireta(${tagIndex},'${t.replace(/'/g,"\\'")}')">${t}</button>`).join(''):'';}
+function adicionarTag(){if(tagIndex===null)return;const inp=document.getElementById('tag-input');const val=inp.value.trim();if(!val)return;if(!Array.isArray(clientes[tagIndex].tags))clientes[tagIndex].tags=[];if(clientes[tagIndex].tags.includes(val)){inp.value='';return;}corDaTag(val);clientes[tagIndex].tags.push(val);inp.value='';salvar();renderTagsModal();render();renderCaixa();atualizarTagFilterBar();}
+function adicionarTagDireta(i,tag){if(!Array.isArray(clientes[i].tags))clientes[i].tags=[];if(!clientes[i].tags.includes(tag))clientes[i].tags.push(tag);tagIndex=i;salvar();renderTagsModal();render();renderCaixa();atualizarTagFilterBar();}
+function removerTag(i,tag){clientes[i].tags=(clientes[i].tags||[]).filter(t=>t!==tag);salvar();renderTagsModal();render();renderCaixa();atualizarTagFilterBar();if(filtroTag===tag){filtroTag=null;atualizarTagFilterBar();render();}}
+function atualizarTagFilterBar(){const bar=document.getElementById('tag-filter-bar');const todas=todasAsTags();if(!todas.length){bar.innerHTML='';bar.style.display='none';return;}bar.style.display='flex';bar.innerHTML='<span style="font-size:11px;color:var(--text3);margin-right:4px;flex-shrink:0;">🏷 Tags:</span>'+todas.map(t=>{const c=corDaTag(t);const ativo=filtroTag===t;return`<button class="tag-filter-btn ${ativo?'ativo':''}" style="color:${c.text};border-color:${ativo?c.border:'transparent'};background:${ativo?c.bg:'transparent'};" onclick="toggleFiltroTag('${t.replace(/'/g,"\\'")}')">${t}</button>`;}).join('')+(filtroTag?`<button onclick="toggleFiltroTag(null)" style="font-size:11px;color:var(--text3);background:transparent;border:none;cursor:pointer;padding:2px 8px;">✕ limpar</button>`:'');}
+function toggleFiltroTag(tag){filtroTag=filtroTag===tag?null:tag;atualizarTagFilterBar();render();}
+window.toggleFiltroTag=toggleFiltroTag;
+function finalizarCliente(i){clientes[i].finalizado=true;clientes[i].dataFinalizacao=new Date().toISOString();salvar();toast("✅ Cliente finalizado");trocarAba('finalizados',document.getElementById('tab-btn-finalizados'));}
+function reativarCliente(i){clientes[i].finalizado=false;clientes[i].dataFinalizacao=null;salvar();toast("↩ Cliente reativado");}
+function renderFinalizados(){const lista=clientes.filter(c=>c.finalizado);const tbody=document.getElementById('fin-tabela');tbody.innerHTML='';if(!lista.length){tbody.innerHTML='<tr><td colspan="9"><div class="empty"><p>Nenhum cliente finalizado ainda.</p></div></td></tr>';}else{lista.forEach(c=>renderLinhaFinalizado(c,clientes.indexOf(c),tbody));}document.getElementById('fin-total').innerText=lista.length;const ultimo=lista.filter(c=>c.dataFinalizacao).sort((a,b)=>new Date(b.dataFinalizacao)-new Date(a.dataFinalizacao))[0];document.getElementById('fin-ultimo').innerText=ultimo?formatarData(ultimo.dataFinalizacao):'—';}
+function renderLinhaFinalizado(c,i,tbody){const bancosAtivos=Array.isArray(c.bancos)?c.bancos:[];const hist=Array.isArray(c.statusHistory)?c.statusHistory:[];const row=document.createElement('tr');row.className=`row-${c.retorno}`;row.style.opacity='.7';row.innerHTML=`<td data-label="Cliente" style="font-weight:600;text-align:left;"><div style="display:flex;align-items:center;gap:4px;">${c.nome}</div>${renderContato(c.telefone)}<div class="meta-info">${c.dataCadastro?`<span class="meta-chip meta-entrada">📅 ${formatarData(c.dataCadastro)}</span>`:''} ${c.dataFinalizacao?`<span class="meta-chip" style="background:rgba(61,214,140,.08);color:var(--green);border:1px solid rgba(61,214,140,.15);">✅ ${formatarData(c.dataFinalizacao)}</span>`:''}</div></td><td data-label="Parceiro" style="color:var(--text2)">${c.parceiro||'—'}</td><td data-label="Retorno"><select class="select-table retorno-select ${c.retorno}" disabled><option>✅ Aprovado</option><option>⚠ Condicionado</option><option>❌ Reprovado</option></select></td><td data-label="Financiamento">${c.valor||'—'}</td><td data-label="Valor do imóvel">${c.valorImovel||'—'}</td><td data-label="Status" style="min-width:120px;"><span style="font-size:12px;color:var(--text2)">${c.status||'—'}</span>${c.statusData?`<div class="status-ts">🕒 ${c.statusData}</div>`:''}${hist.length?`<div class="status-count" onclick="window._g6.abrirHistorico(${i})">📋 ${hist.length} registros</div>`:''}</td><td data-label="Etapa"><span class="badge-etapa etapa-${c.etapa}">${etapas[c.etapa]}</span></td><td data-label="Bancos">${bancosAtivos.map(b=>`<span style="font-size:10px;font-weight:600;color:var(--text2);background:var(--surface3);padding:2px 7px;border-radius:20px;">${b}</span>`).join('')||'—'}</td><td data-label="Ações"><div class="actions"><button class="btn-icon" data-tip="Reativar" onclick="window._g6.reativarCliente(${i})" style="background:rgba(61,214,140,.12);color:var(--green);">↩</button><button class="btn-icon btn-delete" data-tip="Excluir" onclick="window._g6.pedirExclusao(${i})">✕</button></div></td>`;tbody.appendChild(row);}
+function abrirHistorico(i){const c=clientes[i];const hist=Array.isArray(c.statusHistory)?c.statusHistory:[];document.getElementById("hist-cliente-nome").textContent=c.nome;const list=document.getElementById("hist-list");list.innerHTML=!hist.length?'<div style="color:var(--text3);font-size:13px;padding:8px 0;">Nenhum registro ainda.</div>':hist.map(h=>`<div class="hist-item"><div class="hist-val">${h.valor}</div><div class="hist-date">🕒 ${h.data}</div></div>`).join('');document.getElementById("modalHistorico").classList.add("open");}
+function fecharModalHistorico(){document.getElementById("modalHistorico").classList.remove("open");}
+window.fecharModalHistorico=fecharModalHistorico;
+function toggleFiltroRetorno(ret){filtroRetorno=filtroRetorno===ret?null:ret;['aprovado','condicionado','reprovado'].forEach(r=>{document.getElementById('fb-'+r).className='filter-btn'+(filtroRetorno===r?' active-'+r:'');});render();}
+window.toggleFiltroRetorno=toggleFiltroRetorno;
+function ordenarPor(col){if(sortCol===col)sortDir*=-1;else{sortCol=col;sortDir=1;}document.querySelectorAll('th.sortable').forEach(th=>{th.classList.remove('sort-asc','sort-desc');const a=th.querySelector('.sort-arrow');if(a)a.textContent='↕';});const th=document.querySelector(`th[data-col="${col}"]`);if(th){th.classList.add(sortDir===1?'sort-asc':'sort-desc');const a=th.querySelector('.sort-arrow');if(a)a.textContent=sortDir===1?'↑':'↓';}render();}
+window.ordenarPor=ordenarPor;
+function atualizarFiltroToolbar(){const mapa={aprovado:'active-aprovado',condicionado:'active-condicionado',reprovado:'active-reprovado'};['aprovado','condicionado','reprovado'].forEach(k=>{const el=document.getElementById('fb-'+k);if(el)el.className='filter-btn'+(filtroRetorno===k?' '+mapa[k]:'');});const sb=document.getElementById('filtro-banco');if(sb)sb.value=filtroBanco||'';const bp=document.getElementById('btn-parados');if(bp)bp.classList.toggle('active',filtroParados);const bsp=document.getElementById('btn-sem-proposta');if(bsp)bsp.classList.toggle('active',filtroSemProposta);}
+function setFiltroBanco(valor){filtroBanco=valor||'';atualizarFiltroToolbar();render();}
+window.setFiltroBanco=setFiltroBanco;
+function toggleFiltroParados(){filtroParados=!filtroParados;atualizarFiltroToolbar();render();}
+window.toggleFiltroParados=toggleFiltroParados;
+function toggleFiltroSemProposta(){filtroSemProposta=!filtroSemProposta;atualizarFiltroToolbar();render();}
+window.toggleFiltroSemProposta=toggleFiltroSemProposta;
+function toggleCompacto(){document.body.classList.toggle('compact');const btn=document.getElementById('btn-compacto');btn.classList.toggle('active');btn.textContent=document.body.classList.contains('compact')?'⊞ Normal':'⊟ Compacto';}
+window.toggleCompacto=toggleCompacto;
+function exportarCSV(){const cols=['Nome','Parceiro','Telefone','Retorno','Financiamento','Valor Imóvel','Prazo','Status','Última Atualização','Etapa','Bancos','Propostas Bancos','Nota','Data Cadastro'];const rows=clientes.map(c=>{const props=Object.entries(c.propostasBanco||{}).map(([b,v])=>`${b}:${v}`).join(' | ');return[`"${c.nome||''}"`,`"${c.parceiro||''}"`,`"${c.telefone||''}"`,c.retorno||'',`"${c.valor||''}"`,`"${c.valorImovel||''}"`,c.prazo||'',`"${c.status||''}"`,c.statusData||'',etapas[c.etapa]||'',`"${(c.bancos||[]).join(', ')}"`,`"${props}"`,`"${(c.nota||'').replace(/"/g,'""')}"`,c.dataCadastro?new Date(c.dataCadastro).toLocaleDateString('pt-BR'):''].join(';');});const csv=[cols.join(';'),...rows].join('\n');const blob=new Blob(['\uFEFF'+csv],{type:'text/csv;charset=utf-8;'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=`g6-clientes-${new Date().toLocaleDateString('pt-BR').replace(/\//g,'-')}.csv`;a.click();URL.revokeObjectURL(url);toast("⬇ CSV exportado");}
+window.exportarCSV=exportarCSV;
+function renderContato(telefone){const tel=formatarTelefone(telefone);if(!tel)return'';const telLimpo=limparTelefone(tel);const wa=telefoneWhatsapp(tel);return `<div class="contact-phone"><strong>📞 ${tel}</strong></div><div class="contact-quick">${wa?`<a class="contact-chip" href="https://wa.me/${wa}" target="_blank" rel="noopener noreferrer">WhatsApp</a>`:''}${telLimpo?`<a class="contact-chip" href="tel:+55${telLimpo}">Ligar</a>`:''}</div>`;}
+function renderBancos(i,ativos,props){const semBanco=ativos.length===0?`<span class="sem-banco">⚠ Sem banco</span>`:'';const btns=todosBancos.map(b=>{const ativo=ativos.includes(b);const propVal=(props&&props[b])||'';return`<div style="display:flex;flex-direction:column;align-items:center;gap:1px;"><button class="banco-btn ${ativo?'ativo':''}" data-banco="${b}" onclick="window._g6.toggleBanco(${i},'${b}')"><span class="banco-logo"><img src="${bancosLogos[b]}" alt="${b}" onerror="this.parentElement.innerHTML='<span style=font-size:9px;font-weight:800;color:#fff>${b.substring(0,2)}</span>';this.parentElement.style.background='#253045'"></span><span class="banco-nome">${b}</span></button>${ativo?`<div class="proposta-banco-wrap"><input class="proposta-banco-input" value="${propVal.replace(/"/g,'&quot;')}" placeholder="proposta" title="Nº proposta ${b}" onchange="window._g6.alterarPropostaBanco(${i},'${b}',this.value)"></div>`:''}</div>`;}).join('');return semBanco+`<div style="display:flex;gap:4px;flex-wrap:wrap;justify-content:center;">${btns}</div>`;}
+function renderLinha(c,i,tbody){if(c.finalizado)return;const bancosAtivos=Array.isArray(c.bancos)?c.bancos:[];const props=c.propostasBanco||{};const dEtapa=diasDesde(c.etapaDesde);const hist=Array.isArray(c.statusHistory)?c.statusHistory:[];const row=document.createElement("tr");row.className=`row-${c.retorno}`;row.innerHTML=`<td data-label="Cliente" style="font-weight:600;text-align:left;min-width:140px;"><div style="display:flex;align-items:center;gap:4px;flex-wrap:wrap;"><span>${c.nome}</span>${c.nota?'<span class="nota-dot" title="Tem nota"></span>':''}</div><div class="meta-info">${c.dataCadastro?`<span class="meta-chip meta-entrada" title="Data de entrada">📅 ${formatarData(c.dataCadastro)}</span>`:''}</div>${renderContato(c.telefone)}${renderTagsInline(c.tags)}<div style="margin-top:4px;display:flex;gap:4px;flex-wrap:wrap;"><button class="tag-add-btn" onclick="window._g6.abrirModalTags(${i})">🏷 tags</button><button class="tag-add-btn" onclick="window._g6.abrirNota(${i})" style="border-color:rgba(157,126,247,.3);color:var(--purple);">📝 nota</button></div>${etapas[c.etapa]==="Registro"?`<div style="margin-top:4px;"><span onclick="window._g6.toggleRegistro(${i})" style="font-size:11px;color:${c.registroAberto?'var(--gold)':'var(--text3)'};cursor:pointer;">📄 ${c.registroAberto?'fechar':'ver registro'}</span></div>`:''}</td><td data-label="Parceiro" style="color:var(--text2)">${c.parceiro||'—'}</td><td data-label="Retorno"><select onchange="window._g6.alterarRetorno(${i},this.value)" class="select-table retorno-select ${c.retorno}"><option value="aprovado" ${c.retorno==="aprovado"?"selected":""}>✅ Aprovado</option><option value="condicionado" ${c.retorno==="condicionado"?"selected":""}>⚠ Condicionado</option><option value="reprovado" ${c.retorno==="reprovado"?"selected":""}>❌ Reprovado</option></select></td><td data-label="Financiamento" style="white-space:nowrap;">${c.valor||'—'}</td><td data-label="Valor do imóvel" style="white-space:nowrap;">${c.valorImovel||'—'}</td><td data-label="Status" style="min-width:140px;">${etapas[c.etapa]==="Registro"?`<span style="font-size:11px;color:var(--text3);font-style:italic;">ver registro</span>`:`<input class="table-input" value="${(c.status||'').replace(/"/g,'&quot;')}" placeholder="—" onchange="window._g6.alterarStatus(${i},this.value)">`}${c.statusData?`<div class="status-ts">🕒 ${c.statusData}</div>`:''}${hist.length?`<div class="status-count" onclick="window._g6.abrirHistorico(${i})">📋 ${hist.length} registro${hist.length>1?'s':''}</div>`:''}</td><td data-label="Etapa"><span class="badge-etapa etapa-${c.etapa}">${etapas[c.etapa]}</span><div>${diasBadge(dEtapa)}</div></td><td data-label="Bancos">${renderBancos(i,bancosAtivos,props)}</td><td data-label="Ações"><div class="actions"><button class="btn-icon btn-prev" data-tip="Voltar" onclick="window._g6.voltar(${i})">←</button><button class="btn-icon btn-next" data-tip="Avançar" onclick="window._g6.avancar(${i})">→</button><button class="btn-icon" data-tip="Finalizar" onclick="window._g6.finalizarCliente(${i})" style="background:rgba(61,214,140,.1);color:var(--green);font-size:11px;">✅</button><button class="btn-icon btn-delete" data-tip="Excluir" onclick="window._g6.pedirExclusao(${i})">✕</button></div></td>`;tbody.appendChild(row);if(etapas[c.etapa]=="Registro"&&c.registroAberto){const regRow=document.createElement("tr");regRow.innerHTML=`<td colspan="9" style="padding:2px 16px 14px;"><div class="registro-box"><b>📄 Dados do Registro</b><select onchange="window._g6.alterarCampoRegistro(${i},'registro',this.value)"><option value="">Cartório</option><option value="1" ${c.registro=="1"?"selected":""}>1º RI</option><option value="2" ${c.registro=="2"?"selected":""}>2º RI</option><option value="3" ${c.registro=="3"?"selected":""}>3º RI</option><option value="4" ${c.registro=="4"?"selected":""}>4º RI</option><option value="5" ${c.registro=="5"?"selected":""}>5º RI</option></select>${c.registro?`<a class="btn-registro-link" href="${obterLinkRegistro(c.registro)}" target="_blank">🔗 Acessar</a>`:''}<div class="registro-credenciais"><div class="cred-field"><span class="cred-label">Login</span><div class="cred-wrap"><input class="cred-input" value="${c.login||''}" onchange="window._g6.alterarCampoRegistro(${i},'login',this.value)"><button class="cred-copy" onclick="window._g6.copiar('${(c.login||'').replace(/'/g,"\\'")}',this)">📋</button></div></div><div class="cred-field"><span class="cred-label">Senha</span><div class="cred-wrap"><input class="cred-input" value="${c.senha||''}" onchange="window._g6.alterarCampoRegistro(${i},'senha',this.value)"><button class="cred-copy" onclick="window._g6.copiar('${(c.senha||'').replace(/'/g,"\\'")}',this)">📋</button></div></div><div class="cred-field"><span class="cred-label">Proposta</span><div class="cred-wrap"><input class="cred-input" value="${c.proposta||''}" onchange="window._g6.alterarCampoRegistro(${i},'proposta',this.value)"><button class="cred-copy" onclick="window._g6.copiar('${(c.proposta||'').replace(/'/g,"\\'")}',this)">📋</button></div></div><div class="cred-field"><span class="cred-label">Status</span><div class="cred-wrap"><input class="cred-input" style="width:280px" value="${(c.status||'').replace(/"/g,'&quot;')}" onchange="window._g6.alterarStatus(${i},this.value)"></div></div></div></div></td>`;tbody.appendChild(regRow);}}
+
+function listaFiltrada(){let lista=[...clientes].filter(c=>!c.finalizado);if(filtroEtapa!==null)lista=lista.filter(c=>c.etapa===filtroEtapa);if(filtroRetorno!==null)lista=lista.filter(c=>c.retorno===filtroRetorno);if(filtroTag!==null)lista=lista.filter(c=>(c.tags||[]).includes(filtroTag));if(filtroBanco)lista=lista.filter(c=>Array.isArray(c.bancos)&&c.bancos.includes(filtroBanco));if(filtroParados)lista=lista.filter(clienteEstaParado);if(filtroSemProposta)lista=lista.filter(clienteSemProposta);if(sortCol){lista.sort((a,b)=>{const va=sortCol==='etapa'?a.etapa:(sortCol==='valor'?parseValor(a.valorNumero??a.valor):sortCol==='valorImovel'?parseValor(a.valorImovelNumero??a.valorImovel):String(a[sortCol]||'').toLowerCase());const vb=sortCol==='etapa'?b.etapa:(sortCol==='valor'?parseValor(b.valorNumero??b.valor):sortCol==='valorImovel'?parseValor(b.valorImovelNumero??b.valorImovel):String(b[sortCol]||'').toLowerCase());if(va<vb)return-sortDir;if(va>vb)return sortDir;return 0;});}return lista;}
+function render(){const tbody=document.getElementById("tabela");tbody.innerHTML="";const lista=listaFiltrada();if(!lista.length)tbody.innerHTML='<tr><td colspan="9"><div class="empty"><p>Nenhum cliente encontrado.</p></div></td></tr>';else lista.forEach(c=>renderLinha(c,clientes.indexOf(c),tbody));atualizarDashboard();atualizarPipeline();atualizarFiltroToolbar();}
+function atualizarDashboard(){const ativos=clientes.filter(c=>!c.finalizado);const total=ativos.length;const pagos=ativos.filter(c=>etapas[c.etapa]==='Pagamento').length;const pct=total>0?Math.round((pagos/total)*100):0;const ticket=total?ativos.reduce((s,c)=>s+parseValor(c.valorNumero??c.valor),0)/total:0;const parados=ativos.filter(clienteEstaParado).length;const semProposta=ativos.filter(clienteSemProposta).length;const bancosCount={};ativos.forEach(c=>(c.bancos||[]).forEach(b=>bancosCount[b]=(bancosCount[b]||0)+1));const bancoLiderEntry=Object.entries(bancosCount).sort((a,b)=>b[1]-a[1])[0]||null;document.getElementById('totalClientes').innerText=total;document.getElementById('totalAprovados').innerText=ativos.filter(c=>c.retorno==='aprovado').length;document.getElementById('totalContratacao').innerText=ativos.filter(c=>etapas[c.etapa]==='Contratação').length;document.getElementById('taxaConversao').innerText=pct+'%';document.getElementById('ticketMedio').innerText=formatarMoeda(ticket).replace(',00','');document.getElementById('clientesParados').innerText=parados;document.getElementById('clientesSemProposta').innerText=semProposta;document.getElementById('clientesSemPropostaPct').innerText=(total?Math.round((semProposta/total)*100):0)+'% da base';document.getElementById('bancoLider').innerText=bancoLiderEntry?bancoLiderEntry[0]:'—';document.getElementById('bancoLiderMeta').innerText=bancoLiderEntry?`${bancoLiderEntry[1]} cliente${bancoLiderEntry[1]>1?'s':''}`:'Sem bancos vinculados';}
+function atualizarPipeline(){const pipe=document.getElementById("pipeline");pipe.innerHTML="";const ativos=clientes.filter(c=>!c.finalizado);etapas.forEach((e,i)=>{const total=ativos.filter(c=>c.etapa===i).length;const d=document.createElement("div");d.className=`step${filtroEtapa===i?' active':''}`;d.innerHTML=`<strong>${total}</strong>${e}`;d.onclick=e2=>{if(e2.target===d||e2.target.tagName==='STRONG'||e2.target.tagName==='SPAN'){filtroEtapa=filtroEtapa===i?null:i;render();}};pipe.appendChild(d);});const all=document.createElement("div");all.className="step clear";all.innerHTML="<strong>↺</strong>Ver Todos";all.onclick=()=>{filtroEtapa=null;render();};pipe.appendChild(all);}
+function renderCaixa(){const tbody=document.getElementById('cx-tabela');tbody.innerHTML='';const cx=clientes.filter(c=>Array.isArray(c.bancos)&&c.bancos.includes('Caixa'));const lista=cxFiltroEtapa!==null?cx.filter(c=>c.etapa===cxFiltroEtapa):cx;if(!lista.length)tbody.innerHTML='<tr><td colspan="9"><div class="empty"><p>Nenhum cliente Caixa.</p></div></td></tr>';else lista.forEach(c=>renderLinha(c,clientes.indexOf(c),tbody));document.getElementById('cx-totalClientes').innerText=cx.length;document.getElementById('cx-totalAprovados').innerText=cx.filter(c=>c.retorno==='aprovado').length;document.getElementById('cx-totalContratacao').innerText=cx.filter(c=>etapas[c.etapa]==='Contratação').length;const ticket=cx.length?cx.reduce((s,c)=>s+parseValor(c.valorNumero??c.valor),0)/cx.length:0;const cxTicket=document.getElementById('cx-ticketMedio');if(cxTicket)cxTicket.innerText=formatarMoeda(ticket).replace(',00','');const pipe=document.getElementById('cx-pipeline');pipe.innerHTML='';etapas.forEach((e,i)=>{const total=cx.filter(c=>c.etapa===i).length;const d=document.createElement('div');d.className=`step${cxFiltroEtapa===i?' active':''}`;d.innerHTML=`<strong>${total}</strong>${e}`;d.onclick=()=>{cxFiltroEtapa=cxFiltroEtapa===i?null:i;renderCaixa();};pipe.appendChild(d);});const all=document.createElement('div');all.className='step clear';all.innerHTML='<strong>↺</strong>Ver Todos';all.onclick=()=>{cxFiltroEtapa=null;renderCaixa();};pipe.appendChild(all);}
+function copiar(texto,btn){navigator.clipboard.writeText(texto).then(()=>{const orig=btn.textContent;btn.textContent='✅';setTimeout(()=>btn.textContent=orig,1500);});}
+window.toggleBusca=function(){const box=document.getElementById('busca-box'),inp=document.getElementById('busca-input');const aberto=box.style.display==='block';box.style.display=aberto?'none':'block';if(!aberto){inp.value='';filtrarBusca('');inp.focus();}};
+window.filtrarBusca=function(termo){const res=document.getElementById('busca-resultados');if(!termo.trim()){res.innerHTML='';return;}const found=clientes.filter(c=>c.nome.toLowerCase().includes(termo.toLowerCase()));if(!found.length){res.innerHTML='<div style="font-size:12px;color:var(--text3);padding:8px 4px;">Nenhum cliente encontrado.</div>';return;}res.innerHTML=found.map(c=>{const i=clientes.indexOf(c);return`<div onclick="window.irParaCliente(${i})" style="padding:9px 12px;border-radius:8px;cursor:pointer;font-size:13px;display:flex;flex-direction:column;gap:2px;transition:background .15s" onmouseover="this.style.background='rgba(201,168,76,.08)'" onmouseout="this.style.background=''"><span style="font-weight:600">${c.nome}</span><span style="font-size:11px;color:var(--text3)">${c.parceiro||''} · ${etapas[c.etapa]}</span></div>`;}).join('');};
+window.irParaCliente=function(i){document.getElementById('busca-box').style.display='none';if(clientes[i]&&clientes[i].finalizado){trocarAba('finalizados',document.getElementById('tab-btn-finalizados'));renderFinalizados();setTimeout(()=>{const linhas=document.querySelectorAll('#fin-tabela tr');for(const l of linhas){if(l.textContent.includes(clientes[i].nome)){l.scrollIntoView({behavior:'smooth',block:'center'});l.style.transition='background .3s';l.style.background='rgba(61,214,140,.1)';setTimeout(()=>l.style.background='',2000);break;}}},120);return;}trocarAba('geral',document.querySelectorAll('.tab-btn')[0]);filtroEtapa=null;filtroRetorno=null;['aprovado','condicionado','reprovado'].forEach(r=>{document.getElementById('fb-'+r).className='filter-btn';});render();setTimeout(()=>{const linhas=document.querySelectorAll('#tabela tr');for(const l of linhas){if(l.textContent.includes(clientes[i].nome)){l.scrollIntoView({behavior:'smooth',block:'center'});l.style.transition='background .3s';l.style.background='rgba(201,168,76,.08)';setTimeout(()=>l.style.background='',2000);break;}}},120);};
+function trocarAba(aba,btn){document.querySelectorAll('.tab-panel').forEach(p=>p.classList.remove('active'));document.querySelectorAll('.tab-btn').forEach(b=>b.classList.remove('active'));document.getElementById('tab-'+aba).classList.add('active');btn.classList.add('active');document.getElementById('toolbar-geral').style.display=aba==='geral'?'flex':'none';}
+window.trocarAba=trocarAba;
+window._g6={adicionarCliente,pedirExclusao,fecharModal,confirmarExclusao,avancar,voltar,alterarRetorno,alterarStatus,alterarPrazo,toggleBanco,alterarPropostaBanco,alterarCampoRegistro,toggleRegistro,copiar,abrirHistorico,finalizarCliente,reativarCliente,abrirNota,abrirModalTags,adicionarTag,adicionarTagDireta,removerTag};
+document.getElementById("btn-add-geral").onclick=adicionarCliente;
+document.getElementById("btn-cancel").onclick=fecharModal;
+document.getElementById("btn-confirm").onclick=confirmarExclusao;
+document.addEventListener('click',e=>{const box=document.getElementById('busca-box'),lupa=document.getElementById('btn-lupa');if(box&&!box.contains(e.target)&&e.target!==lupa)box.style.display='none';});
+['valor','valorImovel'].forEach(id=>{const el=document.getElementById(id);if(el){el.addEventListener('input',()=>mascararMoedaInput(el));el.addEventListener('blur',()=>mascararMoedaInput(el));}});
+const telInput=document.getElementById('telefone');if(telInput){telInput.addEventListener('input',()=>mascararTelefoneInput(telInput));telInput.addEventListener('blur',()=>mascararTelefoneInput(telInput));}
+['nome','parceiro','telefone','valor','valorImovel'].forEach(id=>{const el=document.getElementById(id);if(el){el.addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();adicionarCliente();}});}});
+document.addEventListener('change',e=>{if(e.target.matches('.table-input,.cred-input'))marcarCampoSalvo(e.target);});
+window.addEventListener('load',()=>{['valor','valorImovel'].forEach(id=>mascararMoedaInput(document.getElementById(id)));mascararTelefoneInput(document.getElementById('telefone'));});
+</script>
+</body>
+</html>
